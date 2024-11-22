@@ -24,6 +24,12 @@ class TargetSerializer(serializers.ModelSerializer):
         model = Target
         fields = ["id", "mission", "name", "country", "notes", "complete"]
 
+    def update(self, instance: Target, validated_data: dict) -> Target:
+        # Prevent updating notes if the target is marked as complete
+        if instance.complete and "notes" in validated_data:
+            raise ValidationError("Notes cannot be updated for a completed target.")
+        return super().update(instance, validated_data)
+
 
 class MissionSerializer(serializers.ModelSerializer):
     targets = TargetSerializer(many=True)
